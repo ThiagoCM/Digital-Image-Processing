@@ -1,0 +1,210 @@
+% --------------
+% Structure from Motion - MATLAB code
+% Natalia Caroline e Thiago Miranda
+% 19/05/2016
+% Passos para rodar este codigo:
+% 1 - Modificar os diretórios de imagens de acordo com o computador
+% utilizado.
+% 2 - O algoritmo precisa ser definido manualmente pelo usuário. Sendo
+% assim, se novas imagens forem colocadas, é necessário aumentar o códio e
+% setar as coordenadas das novas regiões de objeto e background.
+% É necessário ter o Matlab 2016a pois algumas funções só foram
+% 3 - Rodar o código normalmente
+% implementados no mesmo.
+% --------------
+
+f1 = imread('C:\Users\Caroline\Documents\MATLAB\Geodesic\estojo\P1020911.jpg');
+
+figure;imshow(f1);
+%utilizado para segurar a imagem na tela e mostrar as regiões de objeto e background
+hold on; 
+%criando uma matriz binária de 0's do tamanho da imagem original
+bw11 = false(size(f1,1), size(f1, 2));
+%setando a matriz criada, onde os valores dentro das coordenadas específicadas vão ser 1, 
+%a fim de definir as regiões onde o algoritmo de segmentação vai ser aplicado
+%bw11 define a região onde está o objeto.
+bw11(750:1350, 600:2000) = true; 
+
+%bw12 define a primeira região de background
+bw12 = false(size(f1,1), size(f1, 2));
+bw12(240:440, 250:2500) = true;
+%bw13 define a segunda região de background
+bw13 = false(size(f1,1), size(f1, 2));
+bw13(1770:2280, 2900:3600) = true;
+%mostra as regiões na primeira figura mostrada na tela
+visboundaries(bw11, 'Color', 'r');
+visboundaries(bw12, 'Color', 'b');
+visboundaries(bw13, 'Color', 'g');
+
+%aplica a segmentação geodésica, usando as regiões bw11, bw12, bw13 para
+%definir a região do objeto e as regiões dos backgrounds na imagem f1.
+L1 = imseggeodesic(f1, bw11, bw13, bw12);
+figure;
+%transformando as regiões de objeto e background para rgb a fim de mostrar
+%a imagem na tela com diferentes cores
+imshow(label2rgb(L1),'InitialMagnification', 50);
+title('Segmented image');
+figure;
+
+%transformando a imagem L1 de índices para rgb, utilizando o colormap flag
+%para ficar mais fácil na hora da remoção do background.
+seg1 = ind2rgb(L1, flag);
+%armazenando as informações de cores contidas na nova imagem(seg1) em
+%diferentes matrizes(R1, G1, B1).
+R1 = seg1(:, :,1);
+G1 = seg1(:, :,2);
+B1 = seg1(:, :,3);
+%armazenando as informações de cores contidas na imagem original(f1) em
+%diferentes matrizes(R_E1, G_E1, B_E1).
+R_E1 = f1(:,:,1);
+G_E1 = f1(:,:,2);
+B_E1 = f1(:,:,3);
+%uma vez que a forma do estojo está contida nas informações armazenadas em
+%B1, fazemos com que essa região se torne 1 também em R1 e G1.
+R1(B1 == 1) = 1;
+G1(B1 == 1) = 1;
+%agora fazemos com que as informações da imagem original que estão contidas
+%nas matrizes R_E1, G_E1 e B_E1 contenham apenas a região do objeto que foi
+%segmentado e separado do background.
+R_E1(R1 == 1) = 1;
+G_E1(G1 == 1) = 1;
+B_E1(B1 == 1) = 1;
+%concatenação em três dimensões das imagens R_E1, G_E1, B_E1, que contém
+%apenas o objeto de interesse segmentado.
+g1 = cat(3, R_E1, G_E1, B_E1);
+figure;
+imshow(g1);
+%salvando a imagem em disco.
+imsave;
+hold on;
+%%
+f2 = imread('C:\Users\Caroline\Documents\MATLAB\Geodesic\estojo\P1020912.jpg');
+figure;imshow(f2);
+hold on;
+
+bw21 = false(size(f2,1), size(f2, 2));
+bw21(800:1650, 200:3000) = true;
+
+bw22 = false(size(f2,1), size(f2, 2));
+bw22(240:440, 250:2500) = true;
+
+bw23 = false(size(f2,1), size(f2, 2));
+bw23(2050:2280, 300:3150) = true;
+
+visboundaries(bw21, 'Color', 'r');
+visboundaries(bw22, 'Color', 'b');
+visboundaries(bw23, 'Color', 'g');
+
+[L2, P2] = imseggeodesic(f2, bw21, bw23, bw22);
+figure;
+imshow(label2rgb(L2),'InitialMagnification', 50);
+title('Segmented image');
+figure;
+
+seg2 = ind2rgb(L2, flag);
+
+R2 = seg2(:, :,1);
+G2 = seg2(:, :,2);
+B2 = seg2(:, :,3);
+R_E2 = f2(:,:,1);
+G_E2 = f2(:,:,2);
+B_E2 = f2(:,:,3);
+
+
+R2(B2 == 1) = 1;
+G2(B2 == 1) = 1;
+R_E2(R2 == 1) = 1;
+G_E2(G2 == 1) = 1;
+B_E2(B2 == 1) = 1;
+
+g2 = cat(3, R_E2, G_E2, B_E2);
+figure;imshow(g2);
+imsave;
+hold on;
+%%
+f3 = imread('C:\Users\Caroline\Documents\MATLAB\Geodesic\estojo\P1020913.jpg');
+
+figure;imshow(f3);
+hold on;
+
+bw31 = false(size(f3,1), size(f3, 2));
+bw31(1000:1600, 850:3200) = true;
+
+bw32 = false(size(f3,1), size(f3, 2));
+bw32(50:200, 100:4500) = true;
+
+bw33 = false(size(f3,1), size(f3, 2));
+bw33(2400:2900, 1000:3600) = true;
+
+visboundaries(bw31, 'Color', 'r');
+visboundaries(bw32, 'Color', 'b');
+visboundaries(bw33, 'Color', 'g');
+
+[L3, P3] = imseggeodesic(f3, bw31, bw33, bw32);
+figure;
+imshow(label2rgb(L3),'InitialMagnification', 50);
+title('Segmented image');
+
+seg3 = ind2rgb(L3, flag);
+
+R3 = seg3(:, :,1);
+G3 = seg3(:, :,2);
+B3 = seg3(:, :,3);
+R_E3 = f3(:,:,1);
+G_E3 = f3(:,:,2);
+B_E3 = f3(:,:,3);
+
+
+R3(B3 == 1) = 1;
+G3(B3 == 1) = 1;
+R_E3(R3 == 1) = 1;
+G_E3(G3 == 1) = 1;
+B_E3(B3 == 1) = 1;
+
+g3 = cat(3, R_E3, G_E3, B_E3);
+figure;imshow(g3);
+imsave;
+hold on;
+%%
+f4 = imread('C:\Users\Caroline\Documents\MATLAB\Geodesic\estojo\P1020914.jpg');
+figure;imshow(f4);
+hold on;
+
+bw41 = false(size(f4,1), size(f4, 2));
+bw41(900:1500, 1500:3000) = true;
+
+bw42 = false(size(f4,1), size(f4, 2));
+bw42(150:3400, 3815:4600) = true;
+
+bw43 = false(size(f4,1), size(f4, 2));
+bw43(130:3000, 10:700) = true;
+
+visboundaries(bw41, 'Color', 'r');
+visboundaries(bw42, 'Color', 'b');
+visboundaries(bw43, 'Color', 'g');
+
+[L4, P4] = imseggeodesic(f4, bw41, bw43, bw42);
+figure;
+imshow(label2rgb(L4),'InitialMagnification', 50);
+title('Segmented image');
+
+seg4 = ind2rgb(L4, flag);
+
+R4 = seg4(:, :,1);
+G4 = seg4(:, :,2);
+B4 = seg4(:, :,3);
+R_E4 = f4(:,:,1);
+G_E4 = f4(:,:,2);
+B_E4 = f4(:,:,3);
+
+
+R4(B4 == 1) = 1;
+G4(B4 == 1) = 1;
+R_E4(R4 == 1) = 1;
+G_E4(G4 == 1) = 1;
+B_E4(B4 == 1) = 1;
+
+g4 = cat(3, R_E4, G_E4, B_E4);
+figure;imshow(g4);
+imsave;
+hold on;
